@@ -1,7 +1,9 @@
 <template>
-<h2>内容</h2>
+  <div>内容</div>
+<!--    <div class="wrapper">-->
+<!--      <router-view />-->
+<!--    </div>-->
 </template>
-
 <script>
 export default {
 }

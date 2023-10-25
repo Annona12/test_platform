@@ -1,83 +1,44 @@
 <template>
 <div class="menu">
-      <el-menu
-        active-text-color="#ffd04b"
-        background-color="#545c64"
-        class="el-menu-vertical-demo"
-        default-active="2"
-        text-color="#fff"
-        @open="handleOpen"
-        @close="handleClose"
-      >
-        <el-sub-menu index="1">
-          <template #title>
-            <el-icon><location /></el-icon>
-            <span>Navigator One</span>
-          </template>
-          <el-menu-item-group title="Group One">
-            <el-menu-item index="1-1">item one</el-menu-item>
-            <el-menu-item index="1-2">item two</el-menu-item>
-          </el-menu-item-group>
-          <el-menu-item-group title="Group Two">
-            <el-menu-item index="1-3">item three</el-menu-item>
-          </el-menu-item-group>
-          <el-sub-menu index="1-4">
-            <template #title>item four</template>
-            <el-menu-item index="1-4-1">item one</el-menu-item>
-          </el-sub-menu>
-        </el-sub-menu>
-        <el-menu-item index="2">
-          <el-icon><icon-menu /></el-icon>
-          <span>Navigator Two</span>
-        </el-menu-item>
-        <el-menu-item index="3" disabled>
-          <el-icon><document /></el-icon>
-          <span>Navigator Three</span>
-        </el-menu-item>
-        <el-menu-item index="4">
-          <el-icon><setting /></el-icon>
-          <span>Navigator Four</span>
-        </el-menu-item>
-        <el-menu-item index="5">
-          <el-icon><setting /></el-icon>
-          <span>Navigator Four</span>
-        </el-menu-item>
-        <el-menu-item index="6">
-          <el-icon><setting /></el-icon>
-          <span>Navigator Four</span>
-        </el-menu-item>
-        <el-menu-item index="7">
-          <el-icon><setting /></el-icon>
-          <span>Navigator Four</span>
-        </el-menu-item>
-        <el-menu-item index="8">
-          <el-icon><setting /></el-icon>
-          <span>Navigator Four</span>
-        </el-menu-item>
-        <el-menu-item index="9">
-          <el-icon><setting /></el-icon>
-          <span>Navigator Four</span>
-        </el-menu-item>
-        <el-menu-item index="10">
-          <el-icon><setting /></el-icon>
-          <span>Navigator Four</span>
-        </el-menu-item>
-        <el-menu-item index="11">
-          <el-icon><setting /></el-icon>
-          <span>Navigator Four</span>
-        </el-menu-item>
+  <el-menu active-text-color="#ffd04b" background-color="#112f50" class="el-menu-vertical-demo" default-active="1" text-color="#fff" :collapse="isCollapse" router>
+    <el-menu-item><template #title><span>自动化测试平台</span></template></el-menu-item>
+    <el-menu-item index="/"><template #title><el-icon><House /></el-icon><span>首页管理</span></template></el-menu-item>
+    <el-sub-menu index="2">
+      <template #title>
+        <el-icon><Grid /></el-icon>
+        <span>自动化管理</span>
+      </template>
+      <el-menu-item-group>
+        <template #title><span>接口自动化</span></template>
+        <el-menu-item index="2-1">接口报文管理</el-menu-item>
+        <el-menu-item index="2-2">接口用例管理</el-menu-item>
+      </el-menu-item-group>
+    </el-sub-menu>
 
-      </el-menu>
+  </el-menu>
 </div>
 </template>
 
 <script>
+import { ref } from 'vue'
+
 export default {
+  setup(){
+    // 定义开关
+    const isCollapse = ref(false)
+
+    return {
+      isCollapse
+    }
+
+  }
 }
 </script>
 
 <style scoped>
-.menu{
-  position: fixed;
-}
+
+/*.el-menu-vertical-demo:not(.el-menu--collapse) {*/
+/*  width: 200px;*/
+/*  min-height: 400px;*/
+/*}*/
 </style>
