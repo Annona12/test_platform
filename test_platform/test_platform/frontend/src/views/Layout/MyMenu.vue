@@ -1,34 +1,44 @@
 <template>
 <div class="menu">
-  <el-menu active-text-color="#ffd04b" background-color="#112f50" class="el-menu-vertical-demo" default-active="1" text-color="#fff" :collapse="isCollapse" router>
+  <el-menu active-text-color="#ffd04b" background-color="#001529" class="el-menu-vertical-demo" :default-active="route.path" text-color="#ffffff" :collapse="isClose" router>
     <el-menu-item><template #title><span>自动化测试平台</span></template></el-menu-item>
-    <el-menu-item index="/"><template #title><el-icon><House /></el-icon><span>首页管理</span></template></el-menu-item>
-    <el-sub-menu index="2">
+    <el-menu-item index="/"><el-icon><House /></el-icon><template #title>首页管理</template></el-menu-item>
+    <el-sub-menu index="/users">
       <template #title>
         <el-icon><Grid /></el-icon>
         <span>自动化管理</span>
       </template>
       <el-menu-item-group>
         <template #title><span>接口自动化</span></template>
-        <el-menu-item index="2-1">接口报文管理</el-menu-item>
-        <el-menu-item index="2-2">接口用例管理</el-menu-item>
+        <el-menu-item index="/users/list">接口报文管理</el-menu-item>
+        <el-menu-item index="/users/info">接口用例管理</el-menu-item>
       </el-menu-item-group>
     </el-sub-menu>
-
+    <el-sub-menu index="/users1">
+      <template #title>
+        <el-icon><Grid /></el-icon>
+        <span>自动化管理</span>
+      </template>
+      <el-menu-item-group>
+        <template #title><span>接口自动化</span></template>
+        <el-menu-item index="/users/list">接口报文管理</el-menu-item>
+        <el-menu-item index="/users/info">接口用例管理</el-menu-item>
+      </el-menu-item-group>
+    </el-sub-menu>
   </el-menu>
 </div>
 </template>
 
 <script>
-import { ref } from 'vue'
-
+import {useRoute} from 'vue-router'
 export default {
+  // 从父组件获取isClose开关
+  props:['isClose'],
   setup(){
-    // 定义开关
-    const isCollapse = ref(false)
-
+    // 获取当前路由的路径，后续刷新的时候自动定位到该页面
+    const route = useRoute()
     return {
-      isCollapse
+      route
     }
 
   }
@@ -36,9 +46,8 @@ export default {
 </script>
 
 <style scoped>
+.el-menu{
+border-right: none;
+}
 
-/*.el-menu-vertical-demo:not(.el-menu--collapse) {*/
-/*  width: 200px;*/
-/*  min-height: 400px;*/
-/*}*/
 </style>

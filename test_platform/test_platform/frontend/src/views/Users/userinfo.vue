@@ -1,8 +1,9 @@
 <template>
-    <div class="wrapper">
-      <router-view />
-    </div>
+<div>
+  用户信息
+</div>
 </template>
+
 <script>
 export default {
 }

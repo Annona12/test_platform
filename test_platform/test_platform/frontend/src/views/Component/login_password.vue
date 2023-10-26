@@ -1,11 +1,6 @@
 <template>
-  <div class="login">
-    <div class="'form">
-      <div class="left">
-
-      </div>
-      <div class="right">
-          <el-form :model="form" label-width="120px">
+<div>
+    <el-form :model="form" label-width="120px">
     <el-form-item label="Activity name">
       <el-input v-model="form.name" />
     </el-form-item>
@@ -60,27 +55,15 @@
       <el-button>Cancel</el-button>
     </el-form-item>
   </el-form>
-<!--          <LoginForm></LoginForm>-->
-      </div>
-    </div>
-  </div>
+</div>
 </template>
 
 <script>
-// import LoginForm from './LoginForm'
 export default {
-  setup(){
-
-  },
-
-  components:{
-    // LoginForm
-  }
+  name: "login_password"
 }
 </script>
 
 <style scoped>
-.login{
-  background-image: url("../../static/img/login_background.jpg");
-}
+
 </style>

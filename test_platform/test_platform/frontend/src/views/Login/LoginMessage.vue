@@ -1,10 +1,12 @@
 <template>
-    <div class="wrapper">
-      <router-view />
-    </div>
+<div>
+  短信
+</div>
 </template>
+
 <script>
 export default {
+  name: "LoginMessage"
 }
 </script>
 

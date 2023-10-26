@@ -1,10 +1,12 @@
 <template>
-    <div class="wrapper">
-      <router-view />
-    </div>
+<div>
+  密码
+</div>
 </template>
+
 <script>
 export default {
+  name: "LoginPassword"
 }
 </script>
 

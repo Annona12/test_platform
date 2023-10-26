@@ -1,10 +1,12 @@
 <template>
-
+<div>
+  二维码
+</div>
 </template>
 
 <script>
 export default {
-  name: "index"
+  name: "LoginQRCode"
 }
 </script>
 
