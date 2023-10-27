@@ -15,5 +15,20 @@ module.exports = defineConfig({
     }),
   ],
   },
-  lintOnSave:false
+  lintOnSave:false,
+  devServer: {
+      host: '127.0.0.1',
+      port: 8080, // 服务端口
+      proxy: {
+       '/api': {
+        target: 'http://127.0.0.1:8000/', //接口
+        changeOrigin: true,//允许跨域
+        ws: true,
+        pathRewrite: {
+          '^/api': ''
+        }
+      }
+    }
+  }
+
 })
