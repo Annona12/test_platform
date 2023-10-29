@@ -29,12 +29,8 @@
 </template>
 
 <script>
-// import throttle from '../lib/throttle'
 import axios from "axios"
-// axios.defaults.baseURL='http://127.0.0.1:8000/'
-// import qs from 'qs';
 
-// axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded';
 export default {
   data() {
     return {
@@ -58,10 +54,12 @@ export default {
       console.log(this.account)
       console.log(this.password)
       console.log(this.checked)
-      axios.post('/login/',{
-        username:this.account,
-        password:this.password
-      }).then(()=>{})
+      axios.get('/api'
+      //     ,{
+      //   username:this.account,
+      //   password:this.password
+      // }
+      ).then({})
       console.log('登录提交')
       // if (this.account != 'joe' || this.password != '88888888') {
       //   this.$message({
