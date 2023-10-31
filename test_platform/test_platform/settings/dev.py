@@ -44,14 +44,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # 用户模块
-    'users'
+    'users',
+    # 项目管理模块
+    'project_setting'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -152,3 +154,12 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # 指定用户模型类
 AUTH_USER_MODEL = 'users.User'
+
+# jenkins服务连接配置
+
+# jenkins地址
+JENKINS_SERVER_URL = 'http://127.0.0.1:8080/'
+# 登陆jenkins的用户名
+USER_ID = 'Annona'
+# 登陆jenkins后，在用户名>设置>API Token，下可以生成一个token
+API_TOKEN = '11ad726dc19ecd544e0c7b9e0bb235f66b'
