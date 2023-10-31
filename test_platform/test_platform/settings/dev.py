@@ -162,4 +162,4 @@ JENKINS_SERVER_URL = 'http://127.0.0.1:8080/'
 # 登陆jenkins的用户名
 USER_ID = 'Annona'
 # 登陆jenkins后，在用户名>设置>API Token，下可以生成一个token
-API_TOKEN = '11ad726dc19ecd544e0c7b9e0bb235f66b'
+API_TOKEN = '1187c93f33cf822eae16446f81550e1cdd'

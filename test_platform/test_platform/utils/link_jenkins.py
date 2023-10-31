@@ -9,7 +9,7 @@ from test_platform.test_platform.settings.dev import JENKINS_SERVER_URL, USER_ID
 # # 登陆jenkins的用户名
 # user_id = 'Annona'
 # # 登陆jenkins后，在用户名>设置>API Token，下可以生成一个token
-# api_token = '11ad726dc19ecd544e0c7b9e0bb235f66b'
+# api_token = '1187c93f33cf822eae16446f81550e1cdd'
 
 
 class jenkinsJobBuild(object):
