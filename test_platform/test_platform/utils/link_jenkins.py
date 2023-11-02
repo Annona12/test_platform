@@ -123,4 +123,4 @@ print(example_jenkins.get_all_jobs())
 # 启动任务
 # begin = example_jenkins.build_jenkins_job('step_pytest_allure_codeing_work')
 # print(begin)
-print(example_jenkins.get_whoami())
+# print(example_jenkins.get_whoami())
