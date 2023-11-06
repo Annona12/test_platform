@@ -227,3 +227,4 @@ USER_ID = 'Annona'
 # 自己电脑：api_token = '1187c93f33cf822eae16446f81550e1cdd'
 # 公司电脑：api_token = '1109355f8dcfb03b36691d7286903c3cff'
 API_TOKEN = '1109355f8dcfb03b36691d7286903c3cff'
+AUTHENTICATION_BACKENDS = ["users.utils.UsernameMobileAuthBackend"]

@@ -1,12 +1,11 @@
 import re
 
 from django import http
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 
 # Create your views here.
-from django.urls import reverse
 from django.views import View
 from django.db import DatabaseError
 
@@ -21,7 +20,7 @@ class UserLoginView(View):
     """
 
     def get(self, request):
-        return JsonResponse({'status': '200', 'msg': '接口测试通过'},json_dumps_params={'ensure_ascii': False})
+        return JsonResponse({'status': '200', 'msg': '接口测试通过'}, json_dumps_params={'ensure_ascii': False})
 
     def post(self, request):
         username = request.POST.get('username')
@@ -40,9 +39,9 @@ class UserLoginView(View):
         # 认证登录用户
         user = authenticate(username=username, password=password)
         if user is None:
-            return JsonResponse({'status': '403', 'msg': '用户名或密码错误！'},json_dumps_params={'ensure_ascii': False})
+            return JsonResponse({'status': '403', 'msg': '用户名或密码错误！'}, json_dumps_params={'ensure_ascii': False})
         # 保持登录状态
-        login(request,user)
+        login(request, user)
         # 设置状态保持的周期
         if remembered != True:
             # 没有记住用户：浏览器会话结束就过期
@@ -50,7 +49,36 @@ class UserLoginView(View):
         else:
             # 记住用户:None表示两周后过期
             request.session.set_expiry(None)
-        return JsonResponse({'status': '200', 'msg': '登录成功！'},json_dumps_params={'ensure_ascii': False})
+        return JsonResponse({'status': '200', 'msg': '登录成功！'}, json_dumps_params={'ensure_ascii': False})
+
+
+"""感觉这个类使用起来还会有问题不完整"""
+
+
+class UserLogoutView(View):
+    def get(self, request):
+        try:
+            logout(request)
+        except Exception as e:
+            return JsonResponse({'status': '500', 'msg': f'退出登录失败!{{e}}'}, json_dumps_params={'ensure_ascii': False})
+        return JsonResponse({'status': '200', 'msg': '退出登录成功!'}, json_dumps_params={'ensure_ascii': False})
+
+
+"""感觉这个类使用起来还会有问题不完整"""
+
+
+class UserInfoView(View):
+    def get(self, request):
+        username = request.GET.get('username')
+        user = User.objects.get(username=username)
+        print(user.is_authenticated)
+        if user.is_authenticated:
+            return JsonResponse({'status': '200', 'msg': '用户登录！', 'isLogon': True},
+                                json_dumps_params={'ensure_ascii': False})
+        else:
+            return JsonResponse({'status': '404', 'msg': '未登录用户，请登录！', 'isLogon': False},
+                                json_dumps_params={'ensure_ascii': False})
+
 
 class UserRegisterView(View):
     """用户注册模块"""
