@@ -8,9 +8,9 @@ from project_setting.models import ProjectInfomation
 
 class ProjectManagementSelectAll(View):
     """查询所有项目信息"""
-
     def get(self, request):
         try:
+
             project_all = ProjectInfomation.objects.all()
             project_data = list(project_all.values())
             return JsonResponse({'status': '200', 'msg': '查询成功！', 'data': project_data},
