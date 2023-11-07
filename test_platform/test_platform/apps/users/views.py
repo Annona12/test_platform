@@ -3,7 +3,6 @@ import re
 from django import http
 from django.contrib.auth import authenticate, login, logout
 from django.http import  JsonResponse
-from django.shortcuts import render, redirect
 
 # Create your views here.
 from django.views import View
