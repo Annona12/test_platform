@@ -10,6 +10,6 @@ urlpatterns = [
     re_path(r'^isLogon/$', views.UserInfoView.as_view(), name='isLogon'),
     re_path(r'^usernameCount/$', views.UserUsernameCount.as_view(), name='usernameCount'),
     re_path(r'^mobileCount/$', views.UserMobileCount.as_view(), name='mobileCount'),
-    re_path(r'^imageCode/$', views.ImageCodeView.as_view(), name='imageCode')
+    # re_path(r'^imageCode/$', views.ImageCodeView.as_view(), name='imageCode')
 
 ]

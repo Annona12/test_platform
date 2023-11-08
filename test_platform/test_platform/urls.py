@@ -21,5 +21,6 @@ urlpatterns = [
     re_path(r'^admin/', admin.site.urls),
     re_path(r'^', include(('users.urls', 'users'), namespace='users')),
     re_path(r'^', include(('project_setting.urls', 'project_setting'), namespace='project_setting')),
+    re_path(r'^', include(('verifications.urls', 'verifications'), namespace='verifications')),
 
 ]

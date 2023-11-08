@@ -160,15 +160,5 @@ class UserMobileCount(View):
     def post(self):
         pass
 
-class ImageCodeView(View):
-    def get(self,request):
-        username = request.GET.get('username')
-        # 生成图形验证码
-        image_code = '3D3N'
-        # 保存到redis数据库
-        redis_conn = get_redis_connection('verify_code')
-        redis_conn.setex(username, 60, image_code)
-        return JsonResponse({'status': '200', 'msg': '图形验证码设置成功！', 'data': {username:image_code}},
-                            json_dumps_params={'ensure_ascii': False})
 
 

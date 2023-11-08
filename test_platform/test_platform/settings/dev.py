@@ -232,3 +232,5 @@ USER_ID = 'Annona'
 # 公司电脑：api_token = '1109355f8dcfb03b36691d7286903c3cff'
 API_TOKEN = '1109355f8dcfb03b36691d7286903c3cff'
 AUTHENTICATION_BACKENDS = ["users.utils.UsernameMobileAuthBackend"]
+# 容联云token
+AUTH_TOKEN = '482926e40cd6438580fdefa5f347309b'
