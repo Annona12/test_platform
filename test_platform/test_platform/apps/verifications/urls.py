@@ -6,6 +6,7 @@ from django.urls import re_path
 from . import views
 
 urlpatterns = [
-    re_path(r'^imageCode/$', views.ImageCodeView.as_view(), name='imageCode')
+    re_path(r'^imageCode/$', views.ImageCodeView.as_view(), name='imageCode'),
+    re_path(r'^SMSCode/$',views.SMSCodeView.as_view(),name='SMSCode')
 
 ]
