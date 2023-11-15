@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     # 用户模块
     'users',
     # 项目管理模块
-    'project_setting'
+    'project_setting',
+    'oauth'
 ]
 
 MIDDLEWARE = [
@@ -103,9 +104,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',  # 数据库引擎
         'HOST': '127.0.0.1',
         'PORT': 3306,
-        'USER': 'root',
+        'USER': 'dev_user',
         'PASSWORD': '123456',
-        'NAME': 'meiduo'
+        'NAME': 'test_platform'
     }
 }
 

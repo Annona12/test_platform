@@ -13,6 +13,6 @@ class ProjectInfomation(models.Model):
     project_status = models.BooleanField(default=False, verbose_name='项目状态')
 
     class Meta:
-        db_table = 'project_info'
+        db_table = 'tb_project_info'
         verbose_name = '项目信息表'
         verbose_name_plural = verbose_name
