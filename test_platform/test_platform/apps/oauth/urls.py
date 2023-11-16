@@ -3,5 +3,7 @@
 from django.urls import re_path
 from . import views
 urlpatterns = [
-    re_path(r'/$',views.)
+    re_path(r'QQAuthLogin/$',views.QQAuthURLView.as_view(),name='QQAuthLogin'),
+    re_path(r'oauth_callback/$', views.QQAuthUserView.as_view(), name='oauth_callback')
+
 ]

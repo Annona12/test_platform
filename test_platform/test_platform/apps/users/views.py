@@ -4,7 +4,7 @@ import re
 # Create your views here.
 from django import http
 from django.contrib.auth import authenticate, login, logout
-from django.http import  JsonResponse
+from django.http import JsonResponse
 from django.views import View
 from django.db import DatabaseError
 from django_redis import get_redis_connection
@@ -12,6 +12,7 @@ from django_redis import get_redis_connection
 from users.models import User
 
 logger = logging.getLogger('django')
+
 
 class UserLoginView(View):
     """
@@ -103,7 +104,7 @@ class UserRegisterView(View):
         allow = request.POST.get('allow')
         # 校验参数：前后端的校验需要分开，避免恶意用户越过前端逻辑发请求，要保证后端的安全，前后端的校验逻辑相同
         # 判断参数是否齐全:all([列表])：会去校验列表中的元素是否为空，只要有一个为空，返回false
-        if not all([username, password, password2,mobile,allow,sms_code]):
+        if not all([username, password, password2, mobile, allow, sms_code]):
             return http.HttpResponseForbidden('缺少必传参数')
 
         # 判断用户名是否是5-20个字符
@@ -140,39 +141,40 @@ class UserRegisterView(View):
             return JsonResponse({'status': '500', 'msg': '注册失败！'},
                                 json_dumps_params={'ensure_ascii': False})
         else:
-            login(request,user)
+            login(request, user)
             return JsonResponse({'status': '200', 'msg': '注册成功！'},
                                 json_dumps_params={'ensure_ascii': False})
 
+
 class UserUsernameCount(View):
-    def get(self,request):
+    def get(self, request):
         try:
             username = request.GET.get('username')
             count = User.objects.filter(username=username).count()
-            data = [{'count':count}]
+            data = [{'count': count}]
         except Exception as e:
             return JsonResponse({'status': '500', 'msg': '查询失败！'},
                                 json_dumps_params={'ensure_ascii': False})
         else:
-            return JsonResponse({'status': '200', 'msg': '查询成功！','data':data},
+            return JsonResponse({'status': '200', 'msg': '查询成功！', 'data': data},
                                 json_dumps_params={'ensure_ascii': False})
+
     def post(self):
         pass
 
+
 class UserMobileCount(View):
-    def get(self,request):
+    def get(self, request):
         try:
             mobile = request.GET.get('mobile')
             count = User.objects.filter(mobile=mobile).count()
-            data = [{'count':count}]
+            data = [{'count': count}]
         except Exception as e:
             return JsonResponse({'status': '500', 'msg': '查询失败！'},
                                 json_dumps_params={'ensure_ascii': False})
         else:
-            return JsonResponse({'status': '200', 'msg': '查询成功！','data':data},
+            return JsonResponse({'status': '200', 'msg': '查询成功！', 'data': data},
                                 json_dumps_params={'ensure_ascii': False})
+
     def post(self):
         pass
-
-
-

@@ -235,3 +235,11 @@ API_TOKEN = '1109355f8dcfb03b36691d7286903c3cff'
 AUTHENTICATION_BACKENDS = ["users.utils.UsernameMobileAuthBackend"]
 # 容联云token
 AUTH_TOKEN = '482926e40cd6438580fdefa5f347309b'
+
+# QQ登录的配置参数
+QQ_CLIENT_ID = '101518219'
+QQ_CLIENT_SECRET = '418d84ebdc7241efb79536886ae95224'
+QQ_REDIRECT_URI = 'http://127.0.0.1:8000/oauth_callback'
+
+# ALLOWED_HOSTS = ['www.meiduo.site']
+SECRET_KEY = 'pywy*dhbub(60m4$jdt*v*2&4x&tum(sphoti&yyet@v_pn=bh'
