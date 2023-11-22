@@ -12,3 +12,4 @@
 # SHOW ERRORS;
 # SHOW WARNINGS;
 select  distinct  *from tb_user;
+show status;
