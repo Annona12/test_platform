@@ -1,15 +1,20 @@
+import json
 import logging
 import re
 
 # Create your views here.
 from django import http
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.views import View
 from django.db import DatabaseError
 from django_redis import get_redis_connection
 
+from test_platform.utils.views import LoginRequiredJSONMixin
+from celery_task.email.tasks import send_verify_email
 from users.models import User
+from users.utils import generate_verify_email_url,check_verify_email_token
 
 logger = logging.getLogger('django')
 
@@ -54,7 +59,7 @@ class UserLoginView(View):
         return JsonResponse({'status': '200', 'msg': '登录成功！'}, json_dumps_params={'ensure_ascii': False})
 
 
-"""感觉这个类使用起来还会有问题不完整"""
+"""UserLogoutView,感觉这个类使用起来还会有问题不完整"""
 
 
 class UserLogoutView(View):
@@ -67,20 +72,80 @@ class UserLogoutView(View):
             return JsonResponse({'status': '200', 'msg': '退出登录成功!'}, json_dumps_params={'ensure_ascii': False})
 
 
-"""感觉这个类使用起来还会有问题不完整"""
+"""UserInfoView,感觉这个类使用起来还会有问题不完整"""
 
 
-class UserInfoView(View):
+class UserInfoView(LoginRequiredMixin, View):
+    """用户中心
+        1、首先用户登录之后，可以通过用户登录的用户名查找用户信息；
+        2、查找到用户信息之后，将用户名&联系方式返回给用户；
+        3、添加邮箱；
+        4、发送邮箱验证码邮件；
+        5、验证邮箱；
+    """
+
     def get(self, request):
-        username = request.GET.get('username')
-        user = User.objects.get(username=username)
-        print(user.is_authenticated)
-        if user.is_authenticated:
-            return JsonResponse({'status': '200', 'msg': '用户登录！', 'isLogon': True},
-                                json_dumps_params={'ensure_ascii': False})
-        else:
-            return JsonResponse({'status': '404', 'msg': '未登录用户，请登录！', 'isLogon': False},
-                                json_dumps_params={'ensure_ascii': False})
+        data = [
+            {'username': request.user.username,
+             'mobile': request.user.mobile,
+             'email': request.user.email,
+             'email_active': request.user.email_active
+             }
+        ]
+
+        return JsonResponse({'status': '200', 'msg': '个人信息请求成功！', 'data': data},
+                            json_dumps_params={'ensure_ascii': False})
+
+
+class EmailView(LoginRequiredJSONMixin, View):
+
+    def put(self, request):
+        """
+        # 前端输入邮箱，点击保存;
+        # 后端收到前端的保存请求之后校验数据，保存到数据库，并响应相关信息给客户端;
+        :param request:
+        :return:
+        """
+        # 接收参数
+        params_json = json.loads(request.body.decode())
+        email = params_json.get('email')
+
+        # 校验参数
+        if not re.match(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$', email):
+            return http.HttpResponseForbidden('参数email有误')
+        # 将用户传入的邮箱保存到用户数据库的email字段中
+        try:
+            request.user.email = email
+            request.user.save()
+        except Exception as e:
+            logger.error(e)
+            return JsonResponse({'status': '500', 'msg': '添加个人邮箱失败！'})
+        # 发送邮箱验证邮箱
+        verify_url = generate_verify_email_url(request.user)
+        send_verify_email.delay(email, verify_url)
+        return JsonResponse({'status': '200', 'msg': '添加个人邮箱成功！'})
+
+
+class VerifyEmailView(View):
+    def get(self,request):
+        """
+        验证邮箱的核心思想：将当前登录用户的email_active设置为1
+        :param request:
+        :return:
+        """
+        token = request.GET.get('token')
+        if not token :
+            return http.HttpResponseForbidden('缺少必传参数')
+        user = check_verify_email_token(token)
+        if not user:
+            return http.HttpResponseForbidden('无效token')
+        try:
+            user.email_active = True
+            user.save()
+        except Exception as e:
+            logger.error(e)
+            return http.HttpResponseForbidden('邮箱激活失败！')
+        return JsonResponse({'status': '200', 'msg': '邮箱激活成功！'})
 
 
 class UserRegisterView(View):

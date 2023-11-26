@@ -24,6 +24,9 @@ class SMSCodeView(View):
         mobile_client = request.GET.get('mobile')
         username_client = request.GET.get('username')
         image_code_client = request.GET.get('image_code')
+        print('mobile_client',mobile_client)
+        print('username_client',username_client)
+        print('image_code_client',image_code_client)
         # 2、校验必传参数，校验通过发送短信验证码
         if not all([mobile_client, username_client, image_code_client]):
             return http.HttpResponseForbidden('缺少必传参数！！！')
@@ -80,8 +83,5 @@ class ImageCodeView(View):
         with open('image.jpg', 'wb') as file:
             file.write(image.getvalue())
             image.close()
-        # print(image)
-        # image.save("1.jpg")
-        # return http.HttpResponse(image, content_type='image/jpg')
         return JsonResponse({'status': '200', 'msg': '图形验证码设置成功！'},
                             json_dumps_params={'ensure_ascii': False})

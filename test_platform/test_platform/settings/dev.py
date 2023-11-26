@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'users',
     # 项目管理模块
     'project_setting',
-    'oauth'
+    'oauth',
+    'areas'
 ]
 
 MIDDLEWARE = [
@@ -243,3 +244,15 @@ QQ_REDIRECT_URI = 'http://127.0.0.1:8000/oauth_callback'
 
 # ALLOWED_HOSTS = ['www.meiduo.site']
 SECRET_KEY = 'pywy*dhbub(60m4$jdt*v*2&4x&tum(sphoti&yyet@v_pn=bh'
+
+# 邮件参数
+# https://wx.mail.qq.com/list/readtemplate?name=app_intro.html#/agreement/authorizationCode
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # 导入邮件模块
+EMAIL_HOST = 'smtp.qq.com'  # 发邮件主机
+EMAIL_PORT = 587  # 发邮件端口或者587/465
+EMAIL_HOST_USER = '2480916765@qq.com'  # 授权的邮箱
+EMAIL_HOST_PASSWORD = 'knvnoaiitqxaebcc'  # 邮箱授权时获得的密码，非注册登录密码
+EMAIL_FROM = 'Annona<2480916765@qq.com>'  # 发件人抬头
+
+# 邮箱验证链接
+EMAIL_VERIFY_URL = 'http://127.0.0.1:8000/emailSave/verification/'
