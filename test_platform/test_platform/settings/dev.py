@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     # 项目管理模块
     'project_setting',
     'oauth',
-    'areas'
+    'areas',
 ]
 
 MIDDLEWARE = [

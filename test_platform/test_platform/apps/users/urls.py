@@ -21,5 +21,6 @@ urlpatterns = [
     # 验证邮箱
     re_path(r'emailSave/verification/$', views.VerifyEmailView.as_view(), name='emailSave'),
     # re_path(r'^imageCode/$', views.ImageCodeView.as_view(), name='imageCode')
-
+    # 增加地址
+    re_path(r'addresses/create/$',views.AddressCreateView.as_view(),name='address_create')
 ]

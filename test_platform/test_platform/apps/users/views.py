@@ -13,10 +13,77 @@ from django_redis import get_redis_connection
 
 from test_platform.utils.views import LoginRequiredJSONMixin
 from celery_task.email.tasks import send_verify_email
-from users.models import User
-from users.utils import generate_verify_email_url,check_verify_email_token
+from users.models import User, Address
+from users.utils import generate_verify_email_url, check_verify_email_token
 
 logger = logging.getLogger('django')
+
+
+class AddressCreateView(LoginRequiredJSONMixin, View):
+
+    def post(self, request):
+        """
+
+        :param request:
+        :return:
+        """
+        # 判断是否超过了20个地址
+
+        # 没超过获取参数、校验参数返回响应信息
+        # 接收参数
+        # json_dict = json.loads(request.body.decode())
+        receiver = request.POST.get('receiver')
+        province_id = request.POST.get('province_id')
+        city_id = request.POST.get('city_id')
+        district_id = request.POST.get('district_id')
+        place = request.POST.get('place')
+        mobile = request.POST.get('mobile')
+        tel = request.POST.get('tel')
+        email = request.POST.get('email')
+
+        # 校验参数
+        if not all([receiver, province_id, city_id, district_id, place, mobile]):
+            return http.HttpResponseForbidden('缺少必传参数')
+        if not re.match(r'^1[3-9]\d{9}$', mobile):
+            return http.HttpResponseForbidden('参数mobile有误')
+        if tel:
+            if not re.match(r'^(0[0-9]{2,3}-)?([2-9][0-9]{6,7})+(-[0-9]{1,4})?$', tel):
+                return http.HttpResponseForbidden('参数tel有误')
+        if email:
+            if not re.match(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$', email):
+                return http.HttpResponseForbidden('参数email有误')
+        try:
+            address = Address.objects.create(
+                user=request.user,
+                title = receiver,
+                receiver = receiver,
+                province_id = province_id,
+                city_id = city_id,
+                district_id = district_id,
+                place = place,
+                mobile = mobile,
+                tel = tel,
+                email = email
+            )
+
+        except Exception as e:
+            logger.error(e)
+            return JsonResponse({'statu': '500', 'msg': '新增地址失败'})
+
+        # 构造新增地址字典数据
+        address_dict = {
+            "id": address.id,
+            "title": address.title,
+            "receiver": address.receiver,
+            "province": address.province.name,
+            "city": address.city.name,
+            "district": address.district.name,
+            "place": address.place,
+            "mobile": address.mobile,
+            "tel": address.tel,
+            "email": address.email
+        }
+        return JsonResponse({'statu': '200', 'msg': '新增加地址成功', 'data': [address_dict]})
 
 
 class UserLoginView(View):
@@ -127,14 +194,14 @@ class EmailView(LoginRequiredJSONMixin, View):
 
 
 class VerifyEmailView(View):
-    def get(self,request):
+    def get(self, request):
         """
         验证邮箱的核心思想：将当前登录用户的email_active设置为1
         :param request:
         :return:
         """
         token = request.GET.get('token')
-        if not token :
+        if not token:
             return http.HttpResponseForbidden('缺少必传参数')
         user = check_verify_email_token(token)
         if not user:
