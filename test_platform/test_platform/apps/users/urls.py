@@ -22,5 +22,12 @@ urlpatterns = [
     re_path(r'emailSave/verification/$', views.VerifyEmailView.as_view(), name='emailSave'),
     # re_path(r'^imageCode/$', views.ImageCodeView.as_view(), name='imageCode')
     # 增加地址
-    re_path(r'addresses/create/$',views.AddressCreateView.as_view(),name='address_create')
+    re_path(r'addresses/create/$',views.AddressCreateView.as_view(),name='address_create'),
+    # 查询用户地址
+    re_path(r'addresses/$',views.AddressView.as_view(),name='addresses'),
+    # 修改地址信息
+    re_path(r'addresses/update/$',views.UpdateDestoryAddressView.as_view(),name='addresses_update'),
+    # 删除地址信息
+    re_path(r'addresses/delete/$',views.UpdateDestoryAddressView.as_view(),name='addresses_delete'),
+
 ]
