@@ -26,8 +26,14 @@ urlpatterns = [
     # 查询用户地址
     re_path(r'addresses/$',views.AddressView.as_view(),name='addresses'),
     # 修改地址信息
-    re_path(r'addresses/update/$',views.UpdateDestoryAddressView.as_view(),name='addresses_update'),
+    re_path(r'addresses/update/$',views.UpdateAddressView.as_view(),name='addresses_update'),
     # 删除地址信息
-    re_path(r'addresses/delete/$',views.UpdateDestoryAddressView.as_view(),name='addresses_delete'),
+    re_path(r'addresses/delete/$',views.DeleteAddressView.as_view(),name='addresses_delete'),
+    # 设置默认地址
+    re_path(r'addresses/default/$',views.DefaultAddressView.as_view(),name='addresses_default'),
+    # 修改地址标题
+    re_path(r'addresses/updateTitle/$',views.UpdateTitleAddressView.as_view(),name='addresses_update_title'),
+    # 修改用户密码
+    re_path(r'addresses/changePassword/$',views.ChangePasswordView.as_view(),name='change_password'),
 
 ]

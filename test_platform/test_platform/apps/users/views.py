@@ -21,7 +21,97 @@ from users.utils import generate_verify_email_url, check_verify_email_token
 logger = logging.getLogger('django')
 
 
-class UpdateDestoryAddressView(LoginRequiredJSONMixin, View):
+class ChangePasswordView(LoginRequiredJSONMixin, View):
+    def post(self, request):
+        """实现修改密码逻辑"""
+        # 接收参数
+        old_password = request.POST.get('old_password')
+        new_password = request.POST.get('new_password')
+        new_password2 = request.POST.get('new_password2')
+
+        # 校验参数
+        if not all([old_password, new_password, new_password2]):
+            return http.HttpResponseForbidden('缺少必传参数')
+        try:
+            request.user.check_password(old_password)
+        except Exception as e:
+            logger.error(e)
+            return JsonResponse({'status': '405', 'msg': '原始密码错误！'})
+        if not re.match(r'^[0-9A-Za-z]{8,20}$', new_password):
+            return http.HttpResponseForbidden('密码最少8位，最长20位')
+        if new_password != new_password2:
+            return http.HttpResponseForbidden('两次输入的密码不一致')
+        # 修改密码
+        try:
+            request.user.set_password(new_password)
+            request.user.save()
+        except Exception as e:
+            logger.error(e)
+            return JsonResponse({'status': '500', 'msg': '密码修改失败！'})
+        # 清理状态保持信息
+        logout(request)
+        return JsonResponse({'status': '200', 'msg': '密码修改成功！'})
+
+
+class UpdateTitleAddressView(LoginRequiredJSONMixin, View):
+    def post(self, request):
+        address_id = request.POST.get('address_id')
+        title = request.POST.get('title')
+        if not all([address_id, title]):
+            return http.HttpResponseForbidden('缺少必传参数')
+        try:
+            address = Address.objects.get(id=address_id)
+            address.title = title
+            address.save()
+        except Exception as e:
+            logger.error(e)
+            return JsonResponse({'status': '500', 'msg': '修改地址标题失败！'})
+        return JsonResponse({'status': '200', 'msg': '修改地址标题成功！'})
+
+
+class DefaultAddressView(LoginRequiredJSONMixin, View):
+    def post(self, request):
+        """
+        设置默认地址
+        :param request:
+        :return:
+        """
+        address_id = request.POST.get('address_id')
+        if not all([address_id]):
+            return http.HttpResponseForbidden('缺少必传参数')
+        try:
+            address = Address.objects.get(id=address_id)
+            request.user.default_address = address
+            request.user.save()
+        except Exception as e:
+            logger.error(e)
+            return JsonResponse({'status': '500', 'msg': '设置默认地址失败！'})
+        return JsonResponse({'status': '200', 'msg': '设置默认地址成功！'})
+
+
+class DeleteAddressView(LoginRequiredJSONMixin, View):
+    def get(self, request):
+        """
+        删除地址
+        :param request:
+        :return:
+        """
+        address_id = request.GET.get('address_id')
+        # 校验参数
+        if not all([address_id]):
+            return http.HttpResponseForbidden('缺少必传参数')
+        try:
+            delete_address = Address.objects.get(id=address_id)
+            delete_address.is_deleted = True
+            delete_address.save()
+        except Exception as e:
+            logger.error(e)
+            return JsonResponse({'status': '500', 'msg': '删除地址失败！'})
+
+        return JsonResponse({'status': '200', 'msg': '删除地址成功！'})
+
+
+class UpdateAddressView(LoginRequiredJSONMixin, View):
     def post(self, request):
         """
         修改登录用户地址
@@ -86,18 +176,6 @@ class UpdateDestoryAddressView(LoginRequiredJSONMixin, View):
             "email": address.email
         }
         return JsonResponse({'status': '200', 'msg': '修改地址成功！', 'data': address_dict})
-
-    def delete(self, request):
-        address_id = request.DELETE.get('address_id')
-        try:
-            delete_address = Address.objects.get(id=address_id)
-            delete_address.is_deleted  = True
-            delete_address.save()
-        except Exception as e:
-            logger.error(e)
-            return JsonResponse({'status': '200', 'msg': '删除地址失败！'})
-
-        return JsonResponse({'status': '200', 'msg': '删除地址成功！'})
 
 
 class AddressView(LoginRequiredJSONMixin, View):
