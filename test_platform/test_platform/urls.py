@@ -24,5 +24,9 @@ urlpatterns = [
     re_path(r'^', include(('verifications.urls', 'verifications'), namespace='verifications')),
     re_path(r'^', include(('oauth.urls', 'oauth'), namespace='oauth')),
     # 省市区
-    re_path(r'^', include(('areas.urls', 'areas'), namespace='areas'))
+    re_path(r'^', include(('areas.urls', 'areas'), namespace='areas')),
+    # 首页广告区
+    re_path(r'^', include(('contents.urls', 'contents'), namespace='contents')),
+    # 商品区
+    re_path(r'^', include(('goods.urls', 'goods'), namespace='goods')),
 ]

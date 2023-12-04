@@ -48,6 +48,9 @@ INSTALLED_APPS = [
     'project_setting',
     'oauth',
     'areas',
+    'contents',
+    # 商品信息
+    'goods'
 ]
 
 MIDDLEWARE = [
@@ -256,3 +259,10 @@ EMAIL_FROM = 'Annona<2480916765@qq.com>'  # 发件人抬头
 
 # 邮箱验证链接
 EMAIL_VERIFY_URL = 'http://127.0.0.1:8000/emailSave/verification/'
+
+# 指定自定义的Django文件存储类
+DEFAULT_FILE_STORAGE = 'test_platform.utils.fastdfs.fdfs_storage.FastDFSStorage'
+
+# FastDFS相关参数
+FDFS_BASE_URL = 'http://192.168.95.129:22122/'
+# FDFS_BASE_URL = 'http://image.meiduo.site:8888/'
