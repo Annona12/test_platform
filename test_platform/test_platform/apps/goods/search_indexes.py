@@ -3,10 +3,10 @@
 # 开发时间:2023/12/5 21:09
 from haystack import indexes
 
-from goods.models import SKU
+from .models import SKU
 
 
-class SKUIndex(indexes.SearchIndex, indexes.indexable):
+class SKUIndex(indexes.SearchIndex, indexes.Indexable):
     """SKU索引数据模型类"""
     text = indexes.CharField(document=True, use_template=True)
 
