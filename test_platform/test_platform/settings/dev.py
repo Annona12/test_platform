@@ -272,7 +272,8 @@ FDFS_BASE_URL = 'http://192.168.95.130:22122/'
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
-        'URL': 'http://192.168.95.130:9200/', # Elasticsearch服务器ip地址，端口号固定为9200
+        # 'URL': 'http://192.168.95.130:9200/', # Elasticsearch服务器ip地址，端口号固定为9200
+        'URL': 'http://172.20.13.167:9200/', # Elasticsearch服务器ip地址，端口号固定为9200
         'INDEX_NAME': 'test_platform', # Elasticsearch建立的索引库的名称
     },
 }
