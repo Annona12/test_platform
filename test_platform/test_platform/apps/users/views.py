@@ -14,11 +14,68 @@ from django_redis import get_redis_connection
 from test_platform.utils.views import LoginRequiredJSONMixin
 from celery_task.email.tasks import send_verify_email
 
+from goods.models import SKU
 from users import constants
 from users.models import User, Address
 from users.utils import generate_verify_email_url, check_verify_email_token
 
 logger = logging.getLogger('django')
+
+
+class UserBrowseHistory(LoginRequiredJSONMixin, View):
+    """用户浏览记录"""
+
+    def get(self, request):
+        """查询用户商品浏览记录"""
+        # 获取登录用户
+        user = request.user
+        # 创建连接对象
+        redis_coon = get_redis_connection('history')
+        # 取出列表数据
+        sku_ids = redis_coon.lrange('history_%s' % user.id, 0, -1)
+        # 将模型转换为字典响应给用户
+        skus = []
+        for sku_id in sku_ids:
+            sku = SKU.objects.get(id=sku_id)
+            skus.append({
+                'id': sku.id,
+                'name': sku.name,
+                'caption': sku.caption,
+                'price': sku.price,
+                'cost_price': sku.cost_price,
+                'market_price': sku.market_price,
+                'stock': sku.stock,
+                'sales': sku.sales,
+                'comments': sku.comments,
+                'category_id': sku.category_id,
+                'spu_id': sku.spu_id,
+                'default_image_url': sku.default_image.url
+            })
+            return http.JsonResponse({'code': '200', 'errmsg': 'OK', 'skus': skus})
+        pass
+
+    def post(self, request):
+        """保护用户商品浏览记录"""
+        sku_id = request.POST.get('sku_id')
+        if not all([sku_id]):
+            return http.HttpResponseForbidden('缺少必传参数')
+        try:
+            sku = SKU.objects.get(id=sku_id)
+        except SKU.DoesNotExist as e:
+            return http.HttpResponseForbidden('参数sku_id错误')
+        # 保存sku_id到redis
+        redis_conn = get_redis_connection('history')
+        user = request.user
+        pl = redis_conn.pipeline()
+        # 先去重
+        pl.lrem('history_%s' % user.id, 0, sku_id)
+        # 再保存：最近浏览的商品在最前面
+        pl.lpush('history_%s' % user.id, sku_id)
+        # 最后截取
+        pl.ltrim('history_%s' % user.id, 0, 4)
+        # 执行
+        pl.execute()
+        return http.JsonResponse({'code': '200', 'errmsg': 'OK'})
 
 
 class ChangePasswordView(LoginRequiredJSONMixin, View):
