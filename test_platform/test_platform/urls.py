@@ -31,4 +31,8 @@ urlpatterns = [
     re_path(r'^', include(('contents.urls', 'contents'), namespace='contents')),
     # 商品区
     re_path(r'^', include(('goods.urls', 'goods'), namespace='goods')),
+    # 购物车区
+    re_path(r'^', include(('carts.urls', 'carts'), namespace='carts')),
+
+
 ]
