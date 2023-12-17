@@ -14,6 +14,7 @@ from django_redis import get_redis_connection
 from test_platform.utils.views import LoginRequiredJSONMixin
 from celery_task.email.tasks import send_verify_email
 
+from carts.utils import merge_carts_cookies_redis
 from goods.models import SKU
 from users import constants
 from users.models import User, Address
@@ -351,15 +352,18 @@ class UserLoginView(View):
             return JsonResponse({'status': '403', 'msg': '用户名或密码错误！'}, json_dumps_params={'ensure_ascii': False})
         # 保持登录状态
         login(request, user)
+        response = http.JsonResponse({'status': '200', 'msg': '登录成功！'})
         # 设置状态保持的周期
         if remembered != True:
             # 没有记住用户：浏览器会话结束就过期
-            request.session.set_expiry(0)
+            request.session.set_expiry(0) # 单位是秒
         else:
             # 记住用户:None表示两周后过期
             request.session.set_expiry(None)
-        return JsonResponse({'status': '200', 'msg': '登录成功！'}, json_dumps_params={'ensure_ascii': False})
-
+        response.set_cookie('username', user.username, max_age=3600 * 24 * 15)
+        # 用户登录成功，合并cookie购物车到redis购物车
+        response = merge_carts_cookies_redis(request=request, user=user, response=response)
+        return response
 
 """UserLogoutView,感觉这个类使用起来还会有问题不完整"""
 

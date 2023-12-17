@@ -13,6 +13,7 @@ from django.views import View
 # 创建日志输输出器
 from django_redis import get_redis_connection
 
+from carts.utils import merge_carts_cookies_redis
 from oauth.models import OAuthQQUser
 from oauth.util import generate_access_token, check_access_token
 from users.models import User
@@ -62,13 +63,13 @@ class QQAuthUserView(View):
             return JsonResponse({'status': '200', 'msg': '该用户已经绑定QQ,登录到首页！'},
                                 json_dumps_params={'ensure_ascii': False})
 
-    def post(self,request):
+    def post(self, request):
         # 接收参数
         mobile = request.POST.get('mobile')
         pwd = request.POST.get('password')
         sms_code_client = request.POST.get('sms_code')
         access_token = request.POST.get('access_token')
-        if not all([mobile,pwd,sms_code_client,access_token]):
+        if not all([mobile, pwd, sms_code_client, access_token]):
             return http.HttpResponseForbidden('缺少必传参数')
         # 判断手机号是否合法
         if not re.match(r'^1[3-9]\d{9}$', mobile):
@@ -92,7 +93,7 @@ class QQAuthUserView(View):
             user = User.objects.get(mobile=mobile)
         except User.DoesNotExist as e:
             # 如果手机号不存在新建用户
-            user = User.objects.create_user(username=mobile,password=pwd,mobile=mobile)
+            user = User.objects.create_user(username=mobile, password=pwd, mobile=mobile)
         else:
             # 如果用户存在需要校验密码
             if not user.check_password(pwd):
@@ -103,11 +104,12 @@ class QQAuthUserView(View):
             logger.error(e)
             return http.HttpResponseForbidden('服务端出错！！！')
         # openid已绑定美多商城用户:oauth_user.user表示从QQ登陆模型类对象中找到对应的用户模型类对象
-        login(request,oauth_user.user)
-        # request.set_cookie('username',oauth_user.user.username,max_age=3600 * 24 * 15)
-        return JsonResponse({'status': '200', 'msg': '用户已经绑定QQ完成,登录到首页！'},
-                                json_dumps_params={'ensure_ascii': False})
-
+        login(request, oauth_user.user)
+        response = http.JsonResponse({'status': '200', 'msg': '用户已经绑定QQ完成,登录到首页！'})
+        response.set_cookie('username', oauth_user.user.username, max_age=3600 * 24 * 15)
+        # 用户登录成功，合并cookie购物车到redis购物车
+        response = merge_carts_cookies_redis(request=request, user=user, response=response)
+        return response
 
 
 class QQAuthURLView(View):

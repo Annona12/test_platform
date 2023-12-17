@@ -20,7 +20,7 @@ from django.urls import path, re_path, include
 urlpatterns = [
     re_path(r'^admin/', admin.site.urls),
     # haystack
-    re_path(r'^search/',include('haystack.urls')),
+    re_path(r'^search/', include('haystack.urls')),
     re_path(r'^', include(('users.urls', 'users'), namespace='users')),
     re_path(r'^', include(('project_setting.urls', 'project_setting'), namespace='project_setting')),
     re_path(r'^', include(('verifications.urls', 'verifications'), namespace='verifications')),
@@ -33,6 +33,7 @@ urlpatterns = [
     re_path(r'^', include(('goods.urls', 'goods'), namespace='goods')),
     # 购物车区
     re_path(r'^', include(('carts.urls', 'carts'), namespace='carts')),
-
+    # 订单区
+    re_path(r'^', include(('order.urls', 'order'), namespace='order')),
 
 ]

@@ -52,7 +52,9 @@ INSTALLED_APPS = [
     'areas',
     'contents',
     # 商品信息
-    'goods'
+    'goods',
+    # 订单信息
+    'order'
 ]
 
 MIDDLEWARE = [
