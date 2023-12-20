@@ -6,6 +6,7 @@ import re
 from django import http
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import EmptyPage
 from django.http import JsonResponse
 from django.views import View
 from django.db import DatabaseError
@@ -16,12 +17,42 @@ from celery_task.email.tasks import send_verify_email
 
 from carts.utils import merge_carts_cookies_redis
 from goods.models import SKU
+from order.models import OrderInfo
 from users import constants
 from users.models import User, Address
 from users.utils import generate_verify_email_url, check_verify_email_token
 
 logger = logging.getLogger('django')
 
+
+class UserOrderInfoView(LoginRequiredJSONMixin,View):
+
+    def get(self,request):
+        """提供我的订单页面"""
+        user = request.user
+        # 查询订单
+        orders = user.orderinfo_set.all().order_by("-create_time")
+        # 遍历所有订单
+        for order in orders:
+            # 绑定订单状态
+            order.status_name = OrderInfo.ORDER_STATUS_CHOICES[order.status-1][1]
+            # 绑定支付方式
+            order.pay_method_name = OrderInfo.PAY_METHOD_CHOICES[order.pay_method-1][1]
+            order.sku_list = []
+            # 查询订单商品
+            order_goods = order.skus.all()
+            # 遍历订单商品
+            for order_good in order_goods:
+                sku = order_good.sku
+                sku.count = order_good.count
+                sku.amount = sku.price * sku.count
+                order.sku_list.append(sku)
+        data = {
+            "orders": orders,
+
+        }
+        return Js(request, "user_center_order.html", context)
+        pass
 
 class UserBrowseHistory(LoginRequiredJSONMixin, View):
     """用户浏览记录"""

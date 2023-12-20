@@ -1,7 +1,7 @@
 # Create your views here.
 import logging
 from decimal import Decimal
-from time import timezone
+from django.utils import timezone
 
 from django import http
 from django.db import transaction
@@ -13,7 +13,7 @@ from test_platform.utils.views import LoginRequiredMixin, LoginRequiredJSONMixin
 
 # Create your views here.
 from goods.models import SKU
-from order.models import OrderInfo
+from order.models import OrderInfo, OrderGoods
 from users.models import Address
 
 logger = logging.getLogger('django')
@@ -87,7 +87,7 @@ class OrderCommitView(LoginRequiredJSONMixin, View):
     def post(self, request):
         """保存订单基本信息和订单商品信息"""
         address_id = request.POST.get('address_id')
-        pay_method = request.POST.get('pay_method')
+        pay_method = int(request.POST.get('pay_method'))
         # 校验参数
         if not all([address_id, pay_method]):
             return http.HttpResponseForbidden('缺少必传参数')
@@ -108,6 +108,74 @@ class OrderCommitView(LoginRequiredJSONMixin, View):
                 user = request.user
                 # 获取订单编号：时间+user_id == '20190526165742000000001'
                 order_id = timezone.localtime().strftime('%Y%m%d%H%M%S') + ('%09d' % user.id)
+                # 保存订单基本信息（一）
+                order = OrderInfo.objects.create(
+                    order_id=order_id,
+                    user=user,
+                    address=address,
+                    total_count=0,
+                    total_amount=Decimal(0.00),
+                    freight=Decimal(10.00),
+                    pay_method=pay_method,
+                    status=OrderInfo.ORDER_STATUS_ENUM['UNPAID'] if pay_method == OrderInfo.PAY_METHODS_ENUM[
+                        'ALIPAY'] else OrderInfo.ORDER_STATUS_ENUM['UNSEND']
+                )
+                # 保存订单商品信息（多）
+                # 查询redis购物车中被勾选的商品
+                redis_conn = get_redis_connection('carts')
+                # 所有购物车的数据，包含被勾选和未被勾选的
+                redis_cart = redis_conn.hgetall('carts_%s' % user.id)
+                # 被勾选的商品sku_id
+                redis_selected = redis_conn.smembers('selected_%s' % user.id)
+
+                # 构造购物车中被勾选的商品的数据 {b'1': b'1'}
+                new_cart_dict = {}
+                for sku_id in redis_selected:
+                    new_cart_dict[int(sku_id)] = int(redis_cart[sku_id])
+                # 获取被勾选的商品的sku_id
+                sku_ids = new_cart_dict.keys()
+                for sku_id in sku_ids:
+                    # 每个商品都有多次下单的机会，直到库存不足
+                    while True:
+                        sku = SKU.objects.get(id=sku_id)
+                        # 获取原始的库存和销量
+                        origin_stock = sku.stock
+                        origin_sales = sku.sales
+
+                        # 获取要提交订单的商品数量
+                        sku_count = new_cart_dict[sku_id]
+                        # 判断商品数量是否大于库存，如果大于，响应库存不足
+                        if sku_count > origin_stock:
+                            transaction.savepoint_rollback(save_id)
+                            return http.JsonResponse({'code': '500', 'errmsg': '库存不足'})
+                        # 模拟网络延迟
+                        # SKU减少库存，加销量
+                        new_stock = origin_stock - sku_count
+                        new_sales = origin_sales - sku_count
+                        result = SKU.objects.filter(id=sku_id,stock=origin_stock).update(stock=new_stock, sales=new_sales)
+                        # 如果在更新数据时，原始数据变化了，返回0，表示有资源抢夺
+                        if result == 0:
+                            # 库存 10，要买1，但是在下单时，有资源抢夺，被买走1，剩下9个，如果库存依然满足，继续下单，直到库存不足为止
+                            # return http.JsonResponse('下单失败')
+                            continue
+                        # spu 增加销量
+                        sku.spu.sales += sku_count
+                        sku.spu.save()
+                        OrderGoods.objects.create(
+                            order = order,
+                            sku = sku,
+                            count = sku_count,
+                            price = sku.price,
+                        )
+                        # 累加订单商品的数量和总价到订单基本信息表
+                        order.total_count += sku_count
+                        order.total_amount += sku_count * sku.price
+
+                        # 下单成功
+                        break
+                    # 再加上最后的运费
+                order.total_amount += order.freight
+                order.save()
             except Exception as e:
                 # 提交订单失败，回滚
                 transaction.savepoint_rollback(save_id)
@@ -116,4 +184,4 @@ class OrderCommitView(LoginRequiredJSONMixin, View):
                 # 数据库操作成功，提交事务
             transaction.savepoint_commit(save_id)
 
-        return JsonResponse({'code': '200', 'errmsg': '下单成功', 'order_id': 'order_id'})
+        return JsonResponse({'code': '200', 'errmsg': '下单成功', 'order_id': order_id})
