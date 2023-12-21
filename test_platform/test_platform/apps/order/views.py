@@ -152,7 +152,8 @@ class OrderCommitView(LoginRequiredJSONMixin, View):
                         # SKU减少库存，加销量
                         new_stock = origin_stock - sku_count
                         new_sales = origin_sales - sku_count
-                        result = SKU.objects.filter(id=sku_id,stock=origin_stock).update(stock=new_stock, sales=new_sales)
+                        result = SKU.objects.filter(id=sku_id, stock=origin_stock).update(stock=new_stock,
+                                                                                          sales=new_sales)
                         # 如果在更新数据时，原始数据变化了，返回0，表示有资源抢夺
                         if result == 0:
                             # 库存 10，要买1，但是在下单时，有资源抢夺，被买走1，剩下9个，如果库存依然满足，继续下单，直到库存不足为止
@@ -162,10 +163,10 @@ class OrderCommitView(LoginRequiredJSONMixin, View):
                         sku.spu.sales += sku_count
                         sku.spu.save()
                         OrderGoods.objects.create(
-                            order = order,
-                            sku = sku,
-                            count = sku_count,
-                            price = sku.price,
+                            order=order,
+                            sku=sku,
+                            count=sku_count,
+                            price=sku.price,
                         )
                         # 累加订单商品的数量和总价到订单基本信息表
                         order.total_count += sku_count
@@ -183,5 +184,10 @@ class OrderCommitView(LoginRequiredJSONMixin, View):
                 return http.JsonResponse({'code': '500', 'errmsg': '下单失败'})
                 # 数据库操作成功，提交事务
             transaction.savepoint_commit(save_id)
+            data = {
+                'order_id': order_id,
+                'total_amount': order.total_amount,
+                'pay_method': pay_method
+            }
 
-        return JsonResponse({'code': '200', 'errmsg': '下单成功', 'order_id': order_id})
+        return JsonResponse({'code': '200', 'errmsg': '下单成功', 'data': data})

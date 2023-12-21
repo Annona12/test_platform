@@ -25,19 +25,22 @@ from users.utils import generate_verify_email_url, check_verify_email_token
 logger = logging.getLogger('django')
 
 
-class UserOrderInfoView(LoginRequiredJSONMixin,View):
+class UserOrderInfoView(LoginRequiredJSONMixin, View):
 
-    def get(self,request):
+    def get(self, request):
         """提供我的订单页面"""
         user = request.user
+        order_list = []
+
         # 查询订单
         orders = user.orderinfo_set.all().order_by("-create_time")
         # 遍历所有订单
         for order in orders:
+            goods_list = []
             # 绑定订单状态
-            order.status_name = OrderInfo.ORDER_STATUS_CHOICES[order.status-1][1]
+            order.status_name = OrderInfo.ORDER_STATUS_CHOICES[order.status - 1][1]
             # 绑定支付方式
-            order.pay_method_name = OrderInfo.PAY_METHOD_CHOICES[order.pay_method-1][1]
+            order.pay_method_name = OrderInfo.PAY_METHOD_CHOICES[order.pay_method - 1][1]
             order.sku_list = []
             # 查询订单商品
             order_goods = order.skus.all()
@@ -46,13 +49,31 @@ class UserOrderInfoView(LoginRequiredJSONMixin,View):
                 sku = order_good.sku
                 sku.count = order_good.count
                 sku.amount = sku.price * sku.count
-                order.sku_list.append(sku)
+                goods_detail = {
+                    'good_id': order_good.id,
+                    'sku_id': order_good.sku.id,
+                    'sku_name': order_good.sku.name,
+                    'good_count': order_good.count,
+                    'good_price': order_good.price,
+                }
+                goods_list.append(goods_detail)
+            order_detail = {
+                'order_id': order.order_id,
+                'order_status_name': order.status_name,
+                'order_pay_method_name': order.pay_method_name,
+                'order_total_count': order.total_count,
+                'order_total_amount': order.total_amount,
+                'order_address_id': order.address_id,
+                'order_goods_list': goods_list,
+            }
+            order_list.append(order_detail)
         data = {
-            "orders": orders,
-
+            "user_id": user.id,
+            "user_name": user.username,
+            "order_list": order_list
         }
-        return Js(request, "user_center_order.html", context)
-        pass
+        return http.JsonResponse({'code': '200', 'errmsg': 'OK', 'data': data})
+
 
 class UserBrowseHistory(LoginRequiredJSONMixin, View):
     """用户浏览记录"""
@@ -387,7 +408,7 @@ class UserLoginView(View):
         # 设置状态保持的周期
         if remembered != True:
             # 没有记住用户：浏览器会话结束就过期
-            request.session.set_expiry(0) # 单位是秒
+            request.session.set_expiry(0)  # 单位是秒
         else:
             # 记住用户:None表示两周后过期
             request.session.set_expiry(None)
@@ -395,6 +416,7 @@ class UserLoginView(View):
         # 用户登录成功，合并cookie购物车到redis购物车
         response = merge_carts_cookies_redis(request=request, user=user, response=response)
         return response
+
 
 """UserLogoutView,感觉这个类使用起来还会有问题不完整"""
 

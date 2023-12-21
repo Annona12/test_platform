@@ -37,5 +37,6 @@ urlpatterns = [
     re_path(r'addresses/changePassword/$',views.ChangePasswordView.as_view(),name='change_password'),
     # 用户商品浏览记录
     re_path(r'^browse_histories/$', views.UserBrowseHistory.as_view(),name='browse_histories'),
-
+    # 查询用户订单
+    re_path(r'^order_list/$',views.UserOrderInfoView.as_view(),name='order_list')
 ]
