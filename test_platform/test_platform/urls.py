@@ -35,5 +35,7 @@ urlpatterns = [
     re_path(r'^', include(('carts.urls', 'carts'), namespace='carts')),
     # 订单区
     re_path(r'^', include(('order.urls', 'order'), namespace='order')),
+    # 支付区
+    re_path(r'^', include(('payment.urls', 'order'), namespace='payment')),
 
 ]

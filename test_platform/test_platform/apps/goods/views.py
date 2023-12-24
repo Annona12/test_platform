@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from django.utils import timezone # 处理时间的工具
+from django.utils import timezone  # 处理时间的工具
 
 from django import http
 from django.http import JsonResponse
@@ -11,6 +11,7 @@ from django.views import View
 
 # Create your views here.
 from goods.utils import get_breadcrumb
+from order.models import OrderGoods
 
 logger = logging.getLogger('django')
 
@@ -29,7 +30,7 @@ class DetailVisitView(View):
         # 获取当天的日期
         t = timezone.localtime()
         # 获取当天的时间字符串
-        today_str = '%d-%02d-%02d' % (t.year,t.month,t.day)
+        today_str = '%d-%02d-%02d' % (t.year, t.month, t.day)
         # 将当天的时间字符串转成时间对象datetime，为了跟date字段的类型匹配 2019:05:23  2019-05-23
         today_date = datetime.strptime(today_str, '%Y-%m-%d')  # 时间字符串转时间对象；datetime.strftime() # 时间对象转时间字符串
         # 判断当天中指定的分类商品对应的记录是否存在
@@ -134,3 +135,25 @@ class ListView(View):
             # 'breadcrumb': breadcrumb
         }
         return JsonResponse({'status': '200', 'msg': '查询首页信息成功！', 'data': data})
+
+
+class GoodsCommentView(View):
+    """订单商品评价信息"""
+
+    def get(self, request):
+        sku_id = request.GET.get('sku_id')
+        # 校验参数
+        if not all([sku_id]):
+            return http.HttpResponseForbidden('缺少必传参数')
+            # 获取被评价的订单商品信息
+        order_goods_list = OrderGoods.objects.filter(sku_id=sku_id, is_commented=True).order_by('-create_time')[:30]
+        # 序列化
+        comment_list = []
+        for order_goods in order_goods_list:
+            username = order_goods.order.user.username
+            comment_list.append({
+                'username': username[0] + '***' + username[-1] if order_goods.is_anonymous else username,
+                'comment': order_goods.comment,
+                'score': order_goods.score,
+            })
+        return http.JsonResponse({'code': '200', 'errmsg': 'OK', 'comment_list': comment_list})

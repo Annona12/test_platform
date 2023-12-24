@@ -9,5 +9,7 @@ urlpatterns = [
     re_path(r'^orders/settlement/$', views.OrderSettlementView.as_view(), name='settlement'),
     # 提交订单
     re_path(r'^orders/commit/$', views.OrderCommitView.as_view(), name='commit'),
+    # 评价订单
+    re_path(r'^orders/comment/$', views.OrderCommentView.as_view(), name='comment'),
 
 ]

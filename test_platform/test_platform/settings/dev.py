@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     # 商品信息
     'goods',
     # 订单信息
-    'order'
+    'order',
+    'payment'
 ]
 
 MIDDLEWARE = [
@@ -298,3 +299,9 @@ HAYSTACK_CONNECTIONS = {
 # 当添加、修改、删除数据时，自动生成索引
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 # https://blog.csdn.net/shaojiayong/article/details/122470548
+
+# 对接支付宝信息
+ALIPAY_APPID = '2021000122680277'
+ALIPAY_DEBUG = True
+ALIPAY_URL = 'https://openapi.alipaydev.com/gateway.do'
+ALIPAY_RETURN_URL = 'http://127.0.0.1:8000/payment/status/'
